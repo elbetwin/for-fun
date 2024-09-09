@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>game gabut</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000000;
+        }
+
+        canvas {
+            background: #87CEEB;
+            border: 2px solid #333;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="500" height="600"></canvas>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Game variables
+    let playerX = canvas.width / 2 - 25;
+    let playerWidth = 50;
+    let playerHeight = 10;
+    let ballX = Math.random() * (canvas.width - 20);
+    let ballY = 0;
+    let ballRadius = 10;
+    let score = 0;
+    let lives = 3;
+
+    // Key event listeners
+    document.addEventListener("keydown", movePlayer);
+
+    function movePlayer(e) {
+        if (e.key === "ArrowLeft" && playerX > 0) {
+            playerX -= 20;
+        } else if (e.key === "ArrowRight" && playerX < canvas.width - playerWidth) {
+            playerX += 20;
+        }
+    }
+
+    function drawPlayer() {
+        ctx.fillStyle = "black";
+        ctx.fillRect(playerX, canvas.height - playerHeight - 10, playerWidth, playerHeight);
+    }
+
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+        ctx.closePath();
+    }
+
+    function updateBall() {
+        ballY += 5;
+
+        // Check collision with player
+        if (
+            ballY + ballRadius > canvas.height - playerHeight - 10 &&
+            ballX > playerX &&
+            ballX < playerX + playerWidth
+        ) {
+            ballY = 0;
+            ballX = Math.random() * (canvas.width - 20);
+            score++;
+        }
+
+        // Check if ball hits the bottom
+        if (ballY > canvas.height) {
+            ballY = 0;
+            ballX = Math.random() * (canvas.width - 20);
+            lives--;
+            if (lives === 0) {
+                alert("Game Over! Your score is: " + score);
+                document.location.reload();
+            }
+        }
+    }
+
+    function drawScore() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#000";
+        ctx.fillText("Score: " + score, 8, 20);
+    }
+
+    function drawLives() {
+        ctx.font = "16px Arial";
+        ctx.fillStyle = "#000";
+        ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
+    }
+
+    function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPlayer();
+        drawBall();
+        drawScore();
+        drawLives();
+        updateBall();
+        requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+</script>
+
+</body>
+</html>
